@@ -1,0 +1,28 @@
+{
+  "name": "electronapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": " ",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^25.4.0"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1454.0",
+    "axios": "^1.4.0",
+    "chokidar": "^3.5.3",
+    "express": "^4.18.2",
+    "fast-csv": "^4.3.6",
+    "json2csv": "^6.0.0-alpha.2",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.6.0",
+    "shelljs": "^0.8.5",
+    "socket.io": "^4.7.2",
+    "socket.io-client": "^4.7.2"
+  }
+}

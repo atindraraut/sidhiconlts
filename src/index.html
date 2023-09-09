@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <title>Sidhicon Automation Solution</title>
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
+</head>
+
+<body>
+  <main>
+    <div class="loading" id="loadingComponent">Loading&#8230;</div>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+
+      <!-- Modal content -->
+      <div class="modal-content" style="background-color: rgb(212, 212, 218); border-radius: 14px; width: 800px;">
+        <span class="close">&times;</span>
+        <h2>Settings</h2>
+        <div style="display: flex; justify-content: space-around;margin-top: 20px;">
+          <div class="form__group" style="width: 300px; margin: 10px; ">
+            <input type="text" class="form__input" id="lp_id" placeholder="LP id" required="" />
+            <label for="name" class="form__label">LP id</label>
+          </div>
+          <div class="form__group" style="width: 300px; margin: 10px;">
+            <input type="text" class="form__input" id="lp_port" placeholder="LP Port" required="" />
+            <label for="name" class="form__label">LP Port</label>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: space-around;">
+          <div class="form__group" style="width: 300px; margin: 10px; ">
+            <input type="text" class="form__input" id="lp_id" placeholder="LP id" required="" />
+            <label for="name" class="form__label">LP id</label>
+          </div>
+          <div class="form__group" style="width: 300px; margin: 10px;">
+            <input type="text" class="form__input" id="lp_port" placeholder="LP Port" required="" />
+            <label for="name" class="form__label">LP Port</label>
+          </div>
+        </div>
+        <div class="form__group" style="width: 700px; margin: 10px;">
+          <input type="text" class="form__input" id="socketId" placeholder="Socket id" required="" />
+          <label for="name" class="form__label">Socket id</label>
+        </div>
+        <div class="form__group" style="width: 700px; margin: 10px;">
+          <input type="text" class="form__input" id="lp_port" placeholder="Host URL " required="" />
+          <label for="name" class="form__label">Host URL</label>
+        </div>
+        <div class="form__group" style="width: 700px; margin: 10px;">
+          <input type="text" class="form__input" id="lp_port" placeholder="Token" required="" />
+          <label for="name" class="form__label">Token</label>
+        </div>
+      </div>
+
+    </div>
+    <div id="downloadModal" class="modal">
+      <!-- Modal content -->
+      <div class="modal-content" style="background-color: rgb(242, 242, 245); border-radius: 14px; width: 500px;">
+        <span class="closeDownload">&times;</span>
+        <h2>Download CSV.</h2>
+        <form id="downloadform" >
+        <div style="display: flex;margin-top: 15px;">
+          <div>
+            <label for="From">From: </label><input id="fromdate" type="datetime-local" name="From" required>
+          </div>
+          <div style="margin-left: 20px;">
+            <label for="To">To: </label><input id="todate" type="datetime-local" name="To" required>
+          </div>
+        </div>
+        <button  type="submit" id="downloadcsv" style="margin-top: 20px;background-color: green;font-size: 16px;
+        cursor: pointer;border: none;
+        border-radius: 7px;
+        color: white;
+        padding: 7px 16px;">Download</button>
+        </form>
+      </div>
+
+    </div>
+    <section style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin: 30px;
+        ">
+      <img src="./assets/sidhiconicon.jpeg" style="height: 70px" />
+      <span class="settingsicon" id="settingsicon"></span>
+    </section>
+    <section class="status-bar" style="display: flex; justify-content: center">
+      <div class="card" style="margin: 5px">
+        <div class="container-card bg-white-box" id="lp-card"
+          style="background-color: rgb(162, 50, 50);overflow-y: scroll;scrollbar-width: none;">
+          <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              ">
+            <img src="assets/box-icon.png" style="height: 80px;width: 80px;" />
+            <label class="toggle">
+              <span class="onoff"></span>
+              <input type="checkbox" id="lp-checkbox" />
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <p class="card-title">Dimension Server</p>
+          <p class="card-description">
+            This indicates the connection status for dimension server.
+          </p>
+        </div>
+      </div>
+      <div class="card" style="margin: 5px">
+        <div id="wm-card" class="container-card bg-white-box"
+          style="background-color: rgb(162, 50, 50);overflow-y: scroll;scrollbar-width: none;">
+          <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              ">
+            <img src="assets/weight-gain-icon.png" style="height: 80px;width: 80px;" />
+            <label class="toggle">
+              <span class="onoff"></span>
+              <input type="checkbox" id="wm-checkbox" />
+              <span class="slider round"></span>
+            </label>
+          </div>
+          <p class="card-title">Weighting Server</p>
+
+          <p class="card-description">
+            This indicates the connection status for Weighting Server.
+          </p>
+        </div>
+      </div>
+      <div class="card" style="margin: 5px">
+        <div class="container-card bg-white-box"
+          style="background-color: rgb(156, 231, 249); overflow-y: scroll;scrollbar-width: none;overflow-wrap:break-word;">
+          <p class="card-title" style="color: black;">Configuration</p>
+          <p class="card-description" style="color: black;">
+          <div id="serverStatus">Server Status: </div>
+          <div style="display: flex; width: 100%;">
+
+            <div id="lpipdiv" style="width: 70%;">LP IP :</div>
+            <div id="lpportdiv" style="width: 30%;">Port :</div>
+          </div>
+          <div style="display: flex; width: 100%;">
+            <div id="wmipdiv" style="width: 70%;">WM IP :</div>
+            <div id="wmportdiv" style="width: 30%;">Port :</div>
+          </div>
+          <div id="authToken">Token: </div>
+          <div id="uploadURl">Host URL: </div>
+          </p>
+        </div>
+      </div>
+    </section>
+    <section>
+      <div id="container">
+        <div class="product-details" style="margin-top: 20px;">
+          <h1 id="awb" style="margin-bottom: 10px;">#Barcode</h1>
+          <h3 id="length">Length : 0.00cm</h3>
+          <h3 id="breadth">Breadth : 0.00cm</h3>
+          <h3 id="height">Height : 0.00cm</h3>
+          <h3 id="dead_weight">Dead Weight : 0.00kg</h3>
+          <h3 id="scanned_date">Scanned Date : 00-00-0000</h3>
+          <h3 id="scanned_time">Scanned Time : 00:00</h3>
+          <h3 id="cloud_status">Cloud Status : success</h3>
+          </span>
+        </div>
+
+        <div class="product-image">
+          <img id="received_scanned_image"
+            src="https://images.unsplash.com/photo-1606830733744-0ad778449672?ixid=MXwxMjA3fDB8MHxzZWFyY2h8Mzl8fGNocmlzdG1hcyUyMHRyZWV8ZW58MHx8MHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            alt="" />
+        </div>
+      </div>
+    </section>
+    <section class="header">
+      <span class="refreshicon" id="refreshIconId"></span>
+      <span class="downloadicon" id="downloadIconId"></span>
+    </section>
+    <section class="field">
+      <table id="tableData">
+      </table>
+      <div class="bottom-field" style="
+            display: flex;
+            justify-content: space-between;
+            margin: 0px;
+            padding-left: 0px;
+          ">
+        <!-- <div class="items-controller">
+            <h5>Show</h5>
+            <select name="" id="itemperpage">
+              <option value="04">04</option>
+              <option value="05">05</option>
+              <option value="08" selected>08</option>
+              <option value="10">10</option>
+              <option value="15">15</option>
+            </select>
+            <h5>Per Page</h5>
+          </div> -->
+        <ul class="pagination">
+          <div id="pageNo">&#155;</div>
+          <li class="prev"><button id="prev">&#139;</li>
+          <!-- page number here -->
+          <li class="next"><button id="next">&#155;</li>
+
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <script type="text/javascript" src="js/main.js" defer></script>
+  <script src="cdn.socket.io_4.6.0_socket.io.min.js"></script>
+
+  <script>
+    var socket = io("http://localhost:3000");
+    // client-side
+    socket.on("connect", async () => {
+      console.log(socket.id); // x8WIv7-mJelg7on_ALbx
+      let updateSocketIdData = { "SOCKET_ID": socket.id };
+      await updateSystemConfig(updateSocketIdData);
+    });
+    socket.on("disconnect", () => {
+      console.log(socket.id); // undefined
+    });
+    socket.on("lp_status", (resStatus) => {
+      let statusCode = resStatus.status;
+      console.log('lp status ', statusCode); // undefined
+      const lpCard = document.getElementById("lp-card");
+
+      if (statusCode == 200) {
+        lpCard.style.backgroundColor = 'green';
+        document.getElementById("lp-checkbox").checked = true;
+      }
+      else {
+        lpCard.style.backgroundColor = 'red';
+        document.getElementById("lp-checkbox").checked = false;
+      }
+    });
+    socket.on("wm_status", (resStatus) => {
+      let statusCode = resStatus.status;
+      const wmCard = document.getElementById("wm-card");
+      console.log('wp status ', statusCode); // undefined
+      if (statusCode == 200) {
+        wmCard.style.backgroundColor = 'green';
+        document.getElementById("wm-checkbox").checked = true;
+      }
+      else {
+        wmCard.style.backgroundColor = 'red'
+      }
+    });
+
+    socket.on("lp_wm_data", (resData) => {
+      let { status, lpWmData } = resData;
+
+      console.log(lpWmData);
+      const awb = document.getElementById('awb').innerHTML = `${lpWmData?.awb}`;
+      const length = document.getElementById('length').innerHTML = `Length : ${lpWmData?.length}`;
+      const breadth = document.getElementById('breadth').innerHTML = `Breadth : ${lpWmData?.breadth}`;
+      const height = document.getElementById('height').innerHTML = `Height : ${lpWmData?.height}`;
+      const dead_weight = document.getElementById('dead_weight').innerHTML = `Dead Weight : ${lpWmData?.dead_weight}`;
+      const scanned_date = document.getElementById('scanned_date').innerHTML = `Scanned Date : ${lpWmData?.scanned_date}`;
+      const scanned_time = document.getElementById('scanned_time').innerHTML = `Scanned Time : ${lpWmData?.scanned_time}`;
+      const cloud_status = document.getElementById('cloud_status').innerHTML = `Cloud Status : ${lpWmData?.cloudStatus == 200 ? 'Sucess' : 'Failed'}`;
+
+      document.getElementById("received_scanned_image").src = `${lpWmData.images}`;
+      document.getElementById("refreshIconId").click();
+
+
+    });
+  </script>
+</body>
+
+</html>
