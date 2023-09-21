@@ -5,9 +5,9 @@ const mysql = require("mysql"); // MySQL library
 
 // Configure AWS credentials and region
 AWS.config.update({
-  accessKeyId: "AKIA3DDQA7JGZYKZCUER",
-  secretAccessKey: "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",
-  region: "ap-south-1",
+  accessKeyId: "AKIA6AZO2D7QFWN6PC4W",
+  secretAccessKey: "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",
+  region: "us-west-2",
 });
 
 const s3 = new AWS.S3();
