@@ -2,30 +2,21 @@
 const mysql = require("mysql2");
 const util = require("util");
 
-// var dbConn = mysql.createConnection({
-//   host: "103.120.179.209",
-//   user: "admin",
-//   password: "R^1p)`_BAA2uE}A5",
-//   database: "sidhicon_sorting",
-// });
-
-const dbConn = mysql.createConnection({
+// MySQL database configuration
+const dbPool = mysql.createPool({
+  connectionLimit: 10, // Adjust based on your server's capacity
   host: "127.0.0.1",
   user: "root",
   password: "root",
   database: "sidhicon_sorting",
 });
 
-const promiseQuery = util.promisify(dbConn.query).bind(dbConn);
+const promiseQuery = util.promisify(dbPool.query).bind(dbPool);
 
-dbConn.connect(function (error) {
-  if (!!error) {
-    console.log(error);
-  } else {
-    console.log("Database Connected Successfully..!!");
-  }
-});
+if (dbPool) {
+  console.log("Database Connected Successfully..!!");
+}
 
-// create the dbConn to database
+// create the dbPool to database
 
-module.exports = { dbConn, promiseQuery };
+module.exports = { dbPool, promiseQuery };
