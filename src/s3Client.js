@@ -25,7 +25,7 @@ const dbPool = mysql.createPool({
 
 const watcher = chokidar.watch(watchedDirectory, {
   ignored: /^\./,
-  persistent: true,
+  ignoreInitial: true,
 });
 
 watcher.on("add", async (filePath) => {
@@ -48,7 +48,7 @@ async function uploadToS3(filePath) {
   if (dd < 10) dd = "0" + dd;
   if (mm < 10) mm = "0" + mm;
   const fileStream = fs.createReadStream(filePath);
-  const fileName = filePath.split("/").pop();
+  const fileName = filePath.split("\\").pop();
   ///DC_BLR/{year}/{month}/{day}/awb_number_{random_10_digit}.jpg
   const fileKey = `DC_BLR/${yyyy}/${mm}/${dd}/${fileName}`; // The S3 object key
 
@@ -70,13 +70,13 @@ async function uploadToS3(filePath) {
 
 async function updateMySQL(filePath, s3FileKey) {
   console.log("filepath s3fileKey", filePath, s3FileKey);
-  const fileName = filePath.split("/").pop();
+  const fileName = filePath.split("\\").pop();
 
-  const updateQuery = `UPDATE your_table SET s3_file_key = ? WHERE filename = ?`;
+  const updateQuery = `UPDATE parcel_data set s3FileKey = ? where imageName = ?`;
 
   dbPool.getConnection((err, connection) => {
     if (err) {
-      console.error("Error connecting to MySQL:", err);
+      console.error("Error on connecting update s3:", err, filePath);
       return;
     }
 
@@ -86,9 +86,9 @@ async function updateMySQL(filePath, s3FileKey) {
       (queryErr, results) => {
         connection.release(); // Release the connection back to the pool
         if (queryErr) {
-          console.error(`Error updating MySQL:`, queryErr);
+          console.error(`Error updating s3:`, queryErr, filePath);
         } else {
-          console.log(`MySQL record updated for ${fileName}.`);
+          console.log(`Updated successfully for ${fileName}.`);
         }
       }
     );

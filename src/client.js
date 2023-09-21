@@ -193,6 +193,8 @@ client.on("data", async function (listenedData) {
 
   sendData["images"] = imgPath;
   sendData["cloudStatus"] = coludStatusCode;
+  sendData["imageName"] = `${barcode.trim()}_${imgName.trim()}.jpg`;
+  sendData["s3path"] = '';
   delete sendData["profiler_name"];
   callAPI("http://localhost:3000/api/lp-wm-data", {
     status: coludStatusCode,
