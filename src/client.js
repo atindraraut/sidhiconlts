@@ -3,6 +3,7 @@ const { getIPAddress } = require("./getIPAddress");
 const fs = require("fs");
 var axios = require("axios");
 // const { systemConfig } = require("./systemConfig");
+const sharp = require('sharp');
 
 const systemConfig = () => {
   let rawdata = fs.readFileSync("src/systemConfig.json");
@@ -13,7 +14,12 @@ let getImgCount = 0;
 const getBase64Image = async (imgPath) => {
   let base64imag = "";
   try {
-    base64imag = fs.readFileSync(imgPath, { encoding: "base64" });
+    // base64imag = fs.readFileSync(imgPath, { encoding: "base64" });
+    const inputImageBuffer = await fs.promises.readFile(imgPath);
+    base64imag = await sharp(inputImageBuffer)
+      .jpeg({ quality: 50 })
+      .toBuffer()
+      .then(buffer => buffer.toString('base64'));
   } catch (err) {
     console.log("Error ", err.toString());
     if (getImgCount < 3) {

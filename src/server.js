@@ -11,6 +11,45 @@ const Json2csvParser = require("json2csv").Parser;
 var axios = require("axios");
 const util = require("util");
 var { promiseQuery } = require("./db");
+const sharp = require("sharp");
+const AWS = require("aws-sdk");
+
+// Configure AWS credentials and region
+AWS.config.update({
+  accessKeyId: "AKIA3DDQA7JGZYKZCUER",
+  secretAccessKey: "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",
+  region: "ap-south-1",
+});
+const s3 = new AWS.S3();
+const bucketName = "sidhicon-test";
+async function uploadToS3(filePath) {
+  const fileName = filePath.split("\\").pop();
+
+  let today = new Date(Number(fileName.trim()));
+  let yyyy = today.getFullYear();
+  let mm = today.getMonth() + 1; // Months start at 0!
+  let dd = today.getDate();
+  if (dd < 10) dd = "0" + dd;
+  if (mm < 10) mm = "0" + mm;
+  const fileStream = fs.createReadStream(filePath);
+  ///DC_BLR/{year}/{month}/{day}/awb_number_{random_10_digit}.jpg
+  const fileKey = `DC_BLR/${yyyy}/${mm}/${dd}/${fileName}`; // The S3 object key
+
+  const params = {
+    Bucket: bucketName,
+    Key: fileKey,
+    Body: fileStream,
+  };
+
+  try {
+    await s3.upload(params).promise();
+    console.log(`Uploaded ${fileName} to S3 successfully.`);
+    return { success: true, fileKey };
+  } catch (error) {
+    console.error(`Error uploading ${fileName} to S3:`, error);
+    return { success: false };
+  }
+}
 const systemConfig = () => {
   let rawdata = fs.readFileSync("src/systemConfig.json");
   return JSON.parse(rawdata);
@@ -21,7 +60,12 @@ let token = systemConfig()?.TOKEN ? systemConfig()?.TOKEN : "";
 const getBase64Image = async (imgPath) => {
   let base64imag = "";
   try {
-    base64imag = fs.readFileSync(imgPath, { encoding: "base64" });
+    // base64imag = fs.readFileSync(imgPath, { encoding: "base64" });
+    const inputImageBuffer = await fs.promises.readFile(imgPath);
+    base64imag = await sharp(inputImageBuffer)
+      .jpeg({ quality: 50 })
+      .toBuffer()
+      .then((buffer) => buffer.toString("base64"));
   } catch (err) {
     console.log("Error ", err.toString());
   }
@@ -174,6 +218,7 @@ router.post("/retryUpload", async (req, res) => {
   const rows = await promiseQuery(queryExc);
   console.log("Row ", rows);
   let postURL = systemConfig().COLUD_ENDPOINT;
+  uploadToS3(rows[0]["images"]);
   if (rows.length > 0) {
     let base64imag = await getBase64Image(rows[0]["images"]);
     let sendData = {
