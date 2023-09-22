@@ -4,7 +4,7 @@ const os = require("os");
 var express = require("express");
 var app = express();
 var router = express.Router();
-var { dbConn } = require("./db");
+var { dbPool } = require("./db");
 const { getIPAddress } = require("./getIPAddress");
 var exec = require("child_process").exec;
 const Json2csvParser = require("json2csv").Parser;
@@ -126,7 +126,7 @@ router.get("/get-parcel", function (req, res, next) {
     (Number(pageNo) - 1) * pageSize
   }`;
   console.log(queryExc);
-  dbConn.query(queryExc, function (err, rows) {
+  dbPool.query(queryExc, function (err, rows) {
     if (err) {
       res.status(500);
       return res.send(err.toString());
@@ -185,7 +185,7 @@ router.post("/getCsv", (req, res) => {
     req.body.fromdate
   )}' and '${parseDate(req.body.todate)}'`;
   console.log("querry getcsv", queryExc);
-  dbConn.query(queryExc, function (err, rows) {
+  dbPool.query(queryExc, function (err, rows) {
     if (err) {
       res.status(500);
       return res.send(err.toString());
@@ -276,7 +276,7 @@ router.post("/lp-wm-data", (req, res) => {
   console.log("LP WP data log ", status, lpWmData, socketId);
   req.app.io.to(socketId).emit("lp_wm_data", { status, lpWmData });
   // insert query
-  dbConn.query(
+  dbPool.query(
     "INSERT INTO parcel_data SET ?",
     lpWmData,
     function (err, result) {

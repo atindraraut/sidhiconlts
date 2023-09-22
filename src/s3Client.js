@@ -2,26 +2,20 @@ const AWS = require("aws-sdk");
 const fs = require("fs");
 const chokidar = require("chokidar");
 const mysql = require("mysql"); // MySQL library
+var { dbPool } = require("./db");
 
 // Configure AWS credentials and region
 AWS.config.update({
-  accessKeyId: "AKIA3DDQA7JGZYKZCUER",
-  secretAccessKey: "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",
-  region: "ap-south-1",
+  accessKeyId: "AKIA6AZO2D7QFWN6PC4W",
+  secretAccessKey: "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",
+  region: "us-west-2",
 });
 
 const s3 = new AWS.S3();
 const bucketName = "sidhicon-test";
-const watchedDirectory = "C:/sidhiconImages/";
+const watchedDirectory = "D:/Images/Orignal";
 
-// MySQL database configuration
-const dbPool = mysql.createPool({
-  connectionLimit: 10, // Adjust based on your server's capacity
-  host: "127.0.0.1",
-  user: "root",
-  password: "root",
-  database: "sidhicon_sorting",
-});
+
 
 const watcher = chokidar.watch(watchedDirectory, {
   ignored: /^\./,
@@ -72,7 +66,7 @@ async function updateMySQL(filePath, s3FileKey) {
   console.log("filepath s3fileKey", filePath, s3FileKey);
   const fileName = filePath.split("\\").pop();
 
-  const updateQuery = `UPDATE parcel_data set s3FileKey = ? where imageName = ?`;
+  const updateQuery = `UPDATE parcel_data set s3path = ? where imageName = ?`;
 
   dbPool.getConnection((err, connection) => {
     if (err) {
