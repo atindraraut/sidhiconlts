@@ -197,7 +197,7 @@ const fetchtabledata = () => {
 };
 
 const systemConfig = () => {
-  // let rawdata = fs.readFileSync("src/systemConfig.json");
+  // let rawdata = fs.readFileSync("systemConfig.json");
   // return JSON.parse(rawdata);
 };
 

@@ -53,7 +53,7 @@ async function uploadToS3(filePath) {
   }
 }
 const systemConfig = () => {
-  let rawdata = fs.readFileSync("src/systemConfig.json");
+  let rawdata = fs.readFileSync("systemConfig.json");
   return JSON.parse(rawdata);
 };
 let token = systemConfig()?.TOKEN ? systemConfig()?.TOKEN : "";
@@ -147,13 +147,13 @@ router.get("/get-configuration", function (req, res, next) {
 //connect to lp and wm machine
 router.get("/connect-lp-wm", (req, res, next) => {
   console.log("dir", process.cwd());
-  exec("src\\stop.bat", (error, stdout, stderr) => {
+  exec("stopPLCListner.bat", (error, stdout, stderr) => {
     // console.log(stdout);
     console.log("error:", stderr);
     if (error !== null) {
       console.log(`exec error: ${error}`);
     }
-    exec("src\\start.bat", (error, stdout, stderr) => {
+    exec("startPLCListner.bat", (error, stdout, stderr) => {
       // console.log(stdout);
       console.log("error:", stderr);
       if (error !== null) {
@@ -307,7 +307,7 @@ router.post("/update-systeConfig", (req, res) => {
 
   let updatedSystemConfig = JSON.stringify(currentConfig);
   // write everything back to the file system
-  fs.writeFileSync("src/systemConfig.json", updatedSystemConfig);
+  fs.writeFileSync("systemConfig.json", updatedSystemConfig);
   console.log("Res env ", currentConfig);
   return res.send({ msg: "done" });
 });
@@ -324,4 +324,11 @@ http.listen(PORT, function () {
 app.io.on("connection", function (socket) {
   console.log("a user has connected!");
   socket.emit("connected", "Connected");
+});
+
+// serve your css as static
+app.use(express.static(__dirname));
+
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/index.html");
 });

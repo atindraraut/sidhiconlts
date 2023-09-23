@@ -6,7 +6,7 @@ var axios = require("axios");
 const sharp = require('sharp');
 
 const systemConfig = () => {
-  let rawdata = fs.readFileSync("src/systemConfig.json");
+  let rawdata = fs.readFileSync("systemConfig.json");
   return JSON.parse(rawdata);
 };
 
@@ -42,7 +42,7 @@ currentConfig["WM_IP"] = wm_ip;
 currentConfig["LP_PORT"] = lp_port;
 currentConfig["WM_PORT"] = wm_port;
 let updatedSystemConfig = JSON.stringify(currentConfig);
-fs.writeFileSync("src/systemConfig.json", updatedSystemConfig);
+fs.writeFileSync("systemConfig.json", updatedSystemConfig);
 
 var weightClient = new net.Socket();
 var gotWeigth = 0;
@@ -59,7 +59,7 @@ async function callAPI(url, data) {
         Authorization: `Token  ${token}`,
       },
     });
-    console.log("API RES ", apiRes);
+    console.log("API RES ", apiRes.status);
     return apiRes?.status;
   } catch (err) {
     console.log("Error ", err);
@@ -158,45 +158,10 @@ client.on("data", async function (listenedData) {
   fs.writeFile("request.txt", data, (err) => {
     if (err) {
       throw err;
-      console.log("Data has been written to file successfully.");
     }
   });
 
   let coludStatusCode = await callAPI(postURL, sendData);
-  // let coludStatusCode  = 400;
-  //   axios({
-  //     method: 'POST',
-  //     url: postURL,
-  //     data: sendData,
-  //     headers: {
-  //         'Content-Type': 'application/json',
-  //         'Authorization': `Token  ${token}`
-  //     }
-  // })
-  //     .then((res) => {
-  //         console.log(`statusCode: ${res.status}`)
-  //         if(res.status == 200)
-  //         {
-  //           coludStatusCode = 200;
-  //         }
-  //         console.log(res);
-  //         fs.writeFile('response.txt', res.toString(), (err) => {
-  //             if (err) {
-  //                 throw err;
-  //                 console.log("Data has been written to file successfully.");
-  //             }
-  //         });
-  //     })
-  //     .catch((error) => {
-  //         console.error(error)
-  //         fs.writeFile('response.txt', error.toString(), (err) => {
-  //             if (err) {
-  //                 throw err;
-  //                 console.log("Data has been written to file successfully.");
-  //             }
-  //         });
-  //     });
-
   sendData["images"] = imgPath;
   sendData["cloudStatus"] = coludStatusCode;
   sendData["imageName"] = `${barcode.trim()}_${imgName.trim()}.jpg`;

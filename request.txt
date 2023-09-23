@@ -1,1 +1,1 @@
-{"awb":"SF756920378FPL","profiler_name":"BLR-PR01","length":"198","breadth":"229","height":"58","dead_weight":"0.405","scanned_date":"2023-09-22","scanned_time":"20:42:16","images":""}
+{"awb":"SF752707879AJI","profiler_name":"BLR-PR01","length":"361","breadth":"328","height":"128","dead_weight":"0","scanned_date":"2023-09-23","scanned_time":"9:27:6","images":""}

@@ -545,4 +545,9 @@ input:checked + .slider:before {
   transform: translateY(-4rem);
 }
 
+#received_scanned_image
+{
+  width: auto !important;
+}
+
 /* button styles */
