@@ -21,7 +21,7 @@ const cloudStatusMsg = (code) => {
   if (code == "200") return "Success";
   if (code == "500") return "Failed";
   return code;
-}
+};
 
 function showTabledata(data) {
   console.log("data", data);
@@ -61,7 +61,7 @@ function showTabledata(data) {
     //   data[i].cloudStatus == "200" ? "Success" : "failed";
     row.insertCell(6).innerHTML = cloudStatusMsg(data[i].cloudStatus);
     row.insertCell(7).innerHTML = data[i].cloudApiMsg;
-    if (data[i].id != -1) {
+    if (data[i].id != -1 && data[i].cloudStatus != "200") {
       row.insertCell(
         8
       ).innerHTML = `<span class="retryupload" onclick="retryUpload(${data[i].id})" id="retryupload"></span>`;
@@ -222,26 +222,26 @@ const updateTable = (lpdata) => {
   //     "imageName": "SF752707879AJI_1695441426804.jpg",
   // }
   let newData = {
-    "id": -1,
-    "awb": lpdata.awb,
-    "length": lpdata.length,
-    "dead_weight": lpdata.dead_weight,
-    "breadth": lpdata.breadth,
-    "height": lpdata.height,
-    "images": lpdata.images,
-    "cloudStatus": "Sending...",
-    "createdAt": `${lpdata.scanned_date} ${lpdata.scanned_time}`,
-    "scanned_date": lpdata.scanned_date,
-    "scanned_time": lpdata.scanned_time,
-    "cloudApiMsg": null
-  }
+    id: -1,
+    awb: lpdata.awb,
+    length: lpdata.length,
+    dead_weight: lpdata.dead_weight,
+    breadth: lpdata.breadth,
+    height: lpdata.height,
+    images: lpdata.images,
+    cloudStatus: "Sending...",
+    createdAt: `${lpdata.scanned_date} ${lpdata.scanned_time}`,
+    scanned_date: lpdata.scanned_date,
+    scanned_time: lpdata.scanned_time,
+    cloudApiMsg: null,
+  };
   tableData.unshift(newData);
   if (tableData.length > 10) {
     tableData.splice(10);
   }
   showTabledata(tableData);
   console.log("updated data from socket", tableData);
-}
+};
 const systemConfig = () => {
   // let rawdata = fs.readFileSync("systemConfig.json");
   // return JSON.parse(rawdata);
