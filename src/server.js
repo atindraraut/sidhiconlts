@@ -198,7 +198,7 @@ router.get("/close-lp-wm", (req, res, next) => {
 //download csv api
 router.post("/getCsv", (req, res) => {
   console.log("getcsv called", req.body);
-  let queryExc = `SELECT * FROM parcel_data where createdAt between '${parseDate(
+  let queryExc = `SELECT awb,length,dead_weight,breadth,height,height,scanned_date,scanned_date,cloudApiMsg,cloudApiMsg,profiler_name FROM parcel_data where createdAt between '${parseDate(
     req.body.fromdate
   )}' and '${parseDate(req.body.todate)}'`;
   console.log("querry getcsv", queryExc);
