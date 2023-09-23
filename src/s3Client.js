@@ -1,19 +1,19 @@
+require('dotenv').config();
 const AWS = require("aws-sdk");
 const fs = require("fs");
 const chokidar = require("chokidar");
-const mysql = require("mysql"); // MySQL library
 var { dbPool } = require("./db");
 
 // Configure AWS credentials and region
 AWS.config.update({
-  accessKeyId: "AKIA6AZO2D7QFWN6PC4W",
-  secretAccessKey: "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",
-  region: "us-west-2",
+  accessKeyId: process.env.ACCESS_KEY_ID,
+  secretAccessKey:  process.env.SECRET_ACCESS_KEY,
+  region:  process.env.AWS_REGION,
 });
 
 const s3 = new AWS.S3();
-const bucketName = "sfx-shipment-nido-images";
-const watchedDirectory = "D:/Images/Orignal";
+const bucketName = process.env.BUCKET_NAME;
+const watchedDirectory = process.env.WATCHED_DIRECTORY;
 
 
 
