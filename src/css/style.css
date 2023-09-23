@@ -224,8 +224,8 @@ input:checked + .slider:before {
 }
 .retryupload {
   background: url("../assets/retryUpload.png");
-  height: 40px;
-  width: 40px;
+  height: 20px;
+  width: 20px;
   display: inline-block;
   background-size: 100% 100%;
 }
@@ -545,8 +545,7 @@ input:checked + .slider:before {
   transform: translateY(-4rem);
 }
 
-#received_scanned_image
-{
+#received_scanned_image {
   width: auto !important;
 }
 
