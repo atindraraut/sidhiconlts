@@ -9,15 +9,15 @@ const AWS = require("aws-sdk"),
 const fs = require("fs");
 const chokidar = require("chokidar");
 var { dbPool } = require("./db");
+const credentials = {
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.ACCESS_KEY_ID,
+    secretAccessKey: process.env.SECRET_ACCESS_KEY
+  }
+};
 
-// Configure AWS credentials and region
-AWS.config.update({
-  accessKeyId: process.env.ACCESS_KEY_ID,
-  secretAccessKey:  process.env.SECRET_ACCESS_KEY,
-  region:  process.env.AWS_REGION,
-});
-
-const s3 = new S3();
+const s3 = new S3(credentials);
 const bucketName = process.env.BUCKET_NAME;
 const watchedDirectory = process.env.WATCHED_DIRECTORY;
 

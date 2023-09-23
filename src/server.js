@@ -13,16 +13,24 @@ var axios = require("axios");
 const util = require("util");
 var { promiseQuery } = require("./db");
 const sharp = require("sharp");
-const AWS = require("aws-sdk");
+const AWS = require("aws-sdk"),
+      {
+        Upload
+      } = require("@aws-sdk/lib-storage"),
+      {
+        S3
+      } = require("@aws-sdk/client-s3");
 var bodyParser = require('body-parser');
 
-// Configure AWS credentials and region
-AWS.config.update({
-  accessKeyId: process.env.ACCESS_KEY_ID,
-  secretAccessKey:  process.env.SECRET_ACCESS_KEY,
-  region:  process.env.AWS_REGION,
-});
-const s3 = new AWS.S3();
+const credentials = {
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.ACCESS_KEY_ID,
+    secretAccessKey: process.env.SECRET_ACCESS_KEY
+  }
+};
+
+const s3 = new S3(credentials);
 const bucketName = process.env.BUCKET_NAME;
 
 async function uploadToS3(filePath) {
@@ -45,7 +53,10 @@ async function uploadToS3(filePath) {
   };
 
   try {
-    await s3.upload(params).promise();
+    await new Upload({
+      client: s3,
+      params
+    }).done();
     console.log(`Uploaded ${fileName} to S3 successfully.`);
     return { success: true, fileKey };
   } catch (error) {
