@@ -22,7 +22,7 @@ const getBase64Image = async (imgPath) => {
       .then(buffer => buffer.toString('base64'));
   } catch (err) {
     console.log("Error ", err.toString());
-    if (getImgCount < 3) {
+    if (getImgCount < 5) {
       getImgCount++;
       getBase64Image(imgPath);
     }
@@ -47,7 +47,7 @@ fs.writeFileSync("systemConfig.json", updatedSystemConfig);
 var weightClient = new net.Socket();
 var gotWeigth = 0;
 
-async function callAPI(url, data) {
+async function callAPI(url, data, isCloud = null) {
   console.log(url, data);
   try {
     let apiRes = await axios({
@@ -60,9 +60,25 @@ async function callAPI(url, data) {
       },
     });
     console.log("API RES ", apiRes.status);
+    //update db if success from cloud
+    if (apiRes?.status == 200 && isCloud) {
+      let sendData = { status: apiRes?.status, msg: "",imageName: data.imageName };
+      callAPI("http://localhost:3000/api/lp-wm-data-update", {
+        status: 200,
+        lpWmData: sendData,
+        socketId: systemConfig().SOCKET_ID,
+      });
+    }
     return apiRes?.status;
   } catch (err) {
     console.log("Error ", err);
+    if (isCloud) {
+      let sendData = { status: 500, msg: err["response"]["data"]["message"],imageName: data.imageName };
+      callAPI("http://localhost:3000/api/lp-wm-data-update", {
+        lpWmData: sendData,
+        socketId: systemConfig().SOCKET_ID,
+      });
+    }
     return 500;
   }
 }
@@ -128,7 +144,7 @@ client.on("data", async function (listenedData) {
   // let imgPath = `C:/personal/sidhicon/${imgName.trim()}`;
   getImgCount = 0;
   const base64imag = await getBase64Image(imgPath);
-  const datee = new Date(Number(imgName.trim()));
+    const datee = new Date(Number(imgName.trim()));
   let timeIs =
     datee.getHours() + ":" + datee.getMinutes() + ":" + datee.getSeconds();
   const yyyy = datee.getFullYear();
@@ -160,17 +176,25 @@ client.on("data", async function (listenedData) {
       throw err;
     }
   });
-
-  let coludStatusCode = await callAPI(postURL, sendData);
+  let coludStatusCode = 500;
   sendData["images"] = imgPath;
   sendData["cloudStatus"] = coludStatusCode;
   sendData["imageName"] = `${barcode.trim()}_${imgName.trim()}.jpg`;
+  sendData["base64imag"] = `${base64imag}`;
 
   callAPI("http://localhost:3000/api/lp-wm-data", {
     status: coludStatusCode,
     lpWmData: sendData,
     socketId: systemConfig().SOCKET_ID,
   });
+
+  sendData["images"] = base64imag;
+  delete sendData["cloudStatus"];
+  // delete sendData["imageName"];
+  delete sendData["base64imag"];
+
+  coludStatusCode = await callAPI(postURL, sendData, true);
+
 });
 
 client.on("close", function () {

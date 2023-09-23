@@ -16,6 +16,13 @@ const serverStatus = document.getElementById("serverStatus");
 const lpCard = document.getElementById("lp-card");
 const wmCard = document.getElementById("wm-card");
 
+const cloudStatusMsg = (code) => {
+  console.log("status Code", code);
+  if (code == "200") return "Success";
+  if (code == "500") return "Failed";
+  return code;
+}
+
 function showTabledata(data) {
   console.log("data", data);
   // ADD JSON DATA TO THE TABLE AS ROWS.
@@ -31,6 +38,8 @@ function showTabledata(data) {
   row.insertCell(5).innerHTML = "Time";
   row.insertCell(6).innerHTML = "Status";
   row.insertCell(7).innerHTML = "Failure Msg";
+  row.insertCell(8).innerHTML = "Action";
+
   for (let i = 0; i < data.length; i++) {
     console.log(data[i], "map data");
     const today = new Date(data[i]?.createdAt);
@@ -48,12 +57,15 @@ function showTabledata(data) {
     row.insertCell(
       5
     ).innerHTML = `${yyyy}-${mm}-${dd}   ${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
-    row.insertCell(6).innerHTML =
-      data[i].cloudStatus == "200" ? "Success" : "failed";
+    // row.insertCell(6).innerHTML =
+    //   data[i].cloudStatus == "200" ? "Success" : "failed";
+    row.insertCell(6).innerHTML = cloudStatusMsg(data[i].cloudStatus);
     row.insertCell(7).innerHTML = data[i].cloudApiMsg;
-    row.insertCell(
-      8
-    ).innerHTML = `<span class="retryupload" onclick="retryUpload(${data[i].id})" id="retryupload"></span>`;
+    if (data[i].id != -1) {
+      row.insertCell(
+        8
+      ).innerHTML = `<span class="retryupload" onclick="retryUpload(${data[i].id})" id="retryupload"></span>`;
+    }
   }
 }
 
@@ -195,7 +207,41 @@ const fetchtabledata = () => {
       });
   }
 };
-
+const updateTable = (lpdata) => {
+  //   {
+  //     "awb": "SF752707879AJI",
+  //     "profiler_name": "BLR-PR01",
+  //     "length": "361",
+  //     "breadth": "328",
+  //     "height": "128",
+  //     "dead_weight": "0",
+  //     "scanned_date": "2023-09-23",
+  //     "scanned_time": "9:27:6",
+  //     "images": "D:/Images/Orignal/SF752707879AJI_1695441426804.jpg",
+  //     "cloudStatus": 200,
+  //     "imageName": "SF752707879AJI_1695441426804.jpg",
+  // }
+  let newData = {
+    "id": -1,
+    "awb": lpdata.awb,
+    "length": lpdata.length,
+    "dead_weight": lpdata.dead_weight,
+    "breadth": lpdata.breadth,
+    "height": lpdata.height,
+    "images": lpdata.images,
+    "cloudStatus": "Sending...",
+    "createdAt": `${lpdata.scanned_date} ${lpdata.scanned_time}`,
+    "scanned_date": lpdata.scanned_date,
+    "scanned_time": lpdata.scanned_time,
+    "cloudApiMsg": null
+  }
+  tableData.unshift(newData);
+  if (tableData.length > 10) {
+    tableData.splice(10);
+  }
+  showTabledata(tableData);
+  console.log("updated data from socket", tableData);
+}
 const systemConfig = () => {
   // let rawdata = fs.readFileSync("systemConfig.json");
   // return JSON.parse(rawdata);

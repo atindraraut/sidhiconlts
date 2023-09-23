@@ -14,6 +14,7 @@ const util = require("util");
 var { promiseQuery } = require("./db");
 const sharp = require("sharp");
 const AWS = require("aws-sdk");
+var bodyParser = require('body-parser');
 
 // Configure AWS credentials and region
 AWS.config.update({
@@ -111,8 +112,11 @@ const io = require("socket.io")(http, {
   cors: {
     origin: "*",
   },
+  maxHttpBufferSize: 1e8, pingTimeout: 60000
 });
+
 app.io = io;
+
 let PORT = 3000;
 
 //health checkup
@@ -277,6 +281,8 @@ router.post("/lp-wm-data", (req, res) => {
   let { status, lpWmData, socketId } = req.body;
   console.log("LP WP data log ", status, lpWmData, socketId);
   req.app.io.to(socketId).emit("lp_wm_data", { status, lpWmData });
+  delete lpWmData['base64imag'];
+  
   // insert query
   dbPool.query(
     "INSERT INTO parcel_data SET ?",
@@ -292,6 +298,28 @@ router.post("/lp-wm-data", (req, res) => {
   );
 
   return res.send({ msg: "lp wm data done" });
+});
+
+//lp and wp data update socket
+router.post("/lp-wm-data-update", (req, res) => {
+  let {  lpWmData, socketId } = req.body;
+  console.log("LP WP data update log ",  lpWmData, socketId);
+  
+  // update query
+  dbPool.query(
+    "UPDATE  parcel_data SET cloudStatus = ? , cloudApiMsg = ? WHERE imageName = ?",
+    [lpWmData['status'],lpWmData['msg'],lpWmData['imageName']],
+    function (err, result) {
+      //if(err) throw err
+      if (err) {
+        console.log("Unable to update cloud data",err);
+      } else {
+        console.log("Updated successfully cloud data");
+      }
+    }
+  );
+
+  return res.send({ msg: "lp wm data updated" });
 });
 
 router.post("/update-systeConfig", (req, res) => {
@@ -312,6 +340,7 @@ router.post("/update-systeConfig", (req, res) => {
   return res.send({ msg: "done" });
 });
 
+app.use(bodyParser.json({limit: '50mb'}));
 app.use(express.json());
 
 app.use("/api", router);

@@ -1,5 +1,11 @@
 require('dotenv').config();
-const AWS = require("aws-sdk");
+const AWS = require("aws-sdk"),
+      {
+        Upload
+      } = require("@aws-sdk/lib-storage"),
+      {
+        S3
+      } = require("@aws-sdk/client-s3");
 const fs = require("fs");
 const chokidar = require("chokidar");
 var { dbPool } = require("./db");
@@ -11,7 +17,7 @@ AWS.config.update({
   region:  process.env.AWS_REGION,
 });
 
-const s3 = new AWS.S3();
+const s3 = new S3();
 const bucketName = process.env.BUCKET_NAME;
 const watchedDirectory = process.env.WATCHED_DIRECTORY;
 
@@ -53,7 +59,10 @@ async function uploadToS3(filePath) {
   };
 
   try {
-    await s3.upload(params).promise();
+    await new Upload({
+      client: s3,
+      params
+    }).done();
     console.log(`Uploaded ${fileName} to S3 successfully.`);
     return { success: true, fileKey };
   } catch (error) {

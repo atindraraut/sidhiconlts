@@ -60,16 +60,16 @@
       <div class="modal-content" style="background-color: rgb(242, 242, 245); border-radius: 14px; width: 500px;">
         <span class="closeDownload">&times;</span>
         <h2>Download CSV.</h2>
-        <form id="downloadform" >
-        <div style="display: flex;margin-top: 15px;">
-          <div>
-            <label for="From">From: </label><input id="fromdate" type="datetime-local" name="From" required>
+        <form id="downloadform">
+          <div style="display: flex;margin-top: 15px;">
+            <div>
+              <label for="From">From: </label><input id="fromdate" type="datetime-local" name="From" required>
+            </div>
+            <div style="margin-left: 20px;">
+              <label for="To">To: </label><input id="todate" type="datetime-local" name="To" required>
+            </div>
           </div>
-          <div style="margin-left: 20px;">
-            <label for="To">To: </label><input id="todate" type="datetime-local" name="To" required>
-          </div>
-        </div>
-        <button  type="submit" id="downloadcsv" style="margin-top: 20px;background-color: green;font-size: 16px;
+          <button type="submit" id="downloadcsv" style="margin-top: 20px;background-color: green;font-size: 16px;
         cursor: pointer;border: none;
         border-radius: 7px;
         color: white;
@@ -163,14 +163,12 @@
           <h3 id="dead_weight">Dead Weight : 0.00kg</h3>
           <h3 id="scanned_date">Scanned Date : 00-00-0000</h3>
           <h3 id="scanned_time">Scanned Time : 00:00</h3>
-          <h3 id="cloud_status">Cloud Status : success</h3>
+          <!-- <h3 id="cloud_status">Cloud Status : success</h3> -->
           </span>
         </div>
 
         <div class="product-image">
-          <img id="received_scanned_image"
-            src="/assets/3d_delivery_box_parcel.jpg"
-            alt="" />
+          <img id="received_scanned_image" src="/assets/3d_delivery_box_parcel.jpg" alt="" />
         </div>
       </div>
     </section>
@@ -212,6 +210,7 @@
 
   <script type="text/javascript" src="js/main.js" defer></script>
   <script src="cdn.socket.io_4.6.0_socket.io.min.js"></script>
+  <script src="socket.io-stream.js"></script>
 
   <script>
     var socket = io("http://localhost:3000");
@@ -250,8 +249,26 @@
         wmCard.style.backgroundColor = 'red'
       }
     });
+    async function encode(array) {
+      return new Promise((resolve) => {
+        const blob = new Blob([array]);
+        const reader = new FileReader();
 
-    socket.on("lp_wm_data", (resData) => {
+        reader.onload = (event) => {
+          const dataUrl = event.target.result;
+          const [_, base64] = dataUrl.split(',');
+
+          resolve(base64);
+        };
+
+        reader.readAsDataURL(blob);
+        // reader.readAsArrayBuffer(blob);
+
+      
+      });
+    }
+
+    socket.on("lp_wm_data", async (resData) => {
       let { status, lpWmData } = resData;
 
       console.log(lpWmData);
@@ -262,10 +279,14 @@
       const dead_weight = document.getElementById('dead_weight').innerHTML = `Dead Weight : ${lpWmData?.dead_weight}`;
       const scanned_date = document.getElementById('scanned_date').innerHTML = `Scanned Date : ${lpWmData?.scanned_date}`;
       const scanned_time = document.getElementById('scanned_time').innerHTML = `Scanned Time : ${lpWmData?.scanned_time}`;
-      const cloud_status = document.getElementById('cloud_status').innerHTML = `Cloud Status : ${lpWmData?.cloudStatus == 200 ? 'Sucess' : 'Failed'}`;
+      // const cloud_status = document.getElementById('cloud_status').innerHTML = `Cloud Status : ${lpWmData?.cloudStatus == 200 ? 'Sucess' : 'Failed'}`;
+      // let base64imag = window.Buffer.from(lpWmData.base64imag, "base64");
+      // const base64imag = await encode(lpWmData.base64imag);
 
-      document.getElementById("received_scanned_image").src = `${lpWmData.images}`;
-      document.getElementById("refreshIconId").click();
+      // console.log(base64imag);
+      document.getElementById("received_scanned_image").src = `data:image/jpg;base64,${lpWmData.base64imag}`;
+      // document.getElementById("refreshIconId").click();
+      updateTable(lpWmData);
 
 
     });
