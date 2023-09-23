@@ -12,7 +12,7 @@ AWS.config.update({
 });
 
 const s3 = new AWS.S3();
-const bucketName = "sidhicon-test";
+const bucketName = "sfx-shipment-nido-images";
 const watchedDirectory = "D:/Images/Orignal";
 
 

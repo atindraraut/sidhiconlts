@@ -152,7 +152,7 @@ router.post("/getCsv", (req, res) => {
       const json2csvParser = new Json2csvParser({ header: true });
       const csv = json2csvParser.parse(jsonData);
       fs.writeFile(
-        `C:\\Users\\Atindra\\Documents\\sidhicon\\${Math.floor(
+        `C:\\Users\\Admin\\Documents\\sidhicon\\${Math.floor(
           Date.now()
         )}.csv`,
         csv,
