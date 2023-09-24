@@ -1,13 +1,14 @@
 require('dotenv').config();
 const AWS = require("aws-sdk"),
-      {
-        Upload
-      } = require("@aws-sdk/lib-storage"),
-      {
-        S3
-      } = require("@aws-sdk/client-s3");
+  {
+    Upload
+  } = require("@aws-sdk/lib-storage"),
+  {
+    S3
+  } = require("@aws-sdk/client-s3");
 const fs = require("fs");
 const chokidar = require("chokidar");
+var axios = require("axios");
 var { dbPool } = require("./db");
 const credentials = {
   region: process.env.AWS_REGION,
@@ -22,7 +23,24 @@ const bucketName = process.env.BUCKET_NAME;
 const watchedDirectory = process.env.WATCHED_DIRECTORY;
 
 
-
+async function callAPI(url, data) {
+  console.log(url, data);
+  try {
+    let apiRes = await axios({
+      method: "POST",
+      url,
+      data,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    console.log("API RES ", apiRes.status);
+    return apiRes?.status;
+  } catch (err) {
+    console.log("Error ", err);
+    return 500;
+  }
+}
 const watcher = chokidar.watch(watchedDirectory, {
   ignored: /^\./,
   ignoreInitial: true,
@@ -32,6 +50,7 @@ watcher.on("add", async (filePath) => {
   console.log(`New file detected: ${filePath}`);
   try {
     const uploadResult = await uploadToS3(filePath);
+    await selectMySQL(filePath);
     if (uploadResult.success) {
       await updateMySQL(filePath, uploadResult.fileKey);
     }
@@ -92,6 +111,36 @@ async function updateMySQL(filePath, s3FileKey) {
           console.error(`Error updating s3:`, queryErr, filePath);
         } else {
           console.log(`Updated successfully for ${fileName}.`);
+        }
+      }
+    );
+  });
+}
+async function selectMySQL(filePath) {
+  console.log("filepath s3fileKey", filePath);
+  const fileName = filePath.split("\\").pop();
+
+  const selectQuery = `SELECT id,cloudStatus from parcel_data where imageName = ?`;
+
+  dbPool.getConnection((err, connection) => {
+    if (err) {
+      console.error("Error on connecting update s3:", err, filePath);
+      return;
+    }
+
+    connection.query(
+      selectQuery,
+      [fileName],
+      (queryErr, results) => {
+        connection.release(); // Release the connection back to the pool
+        if (queryErr) {
+          console.error(`Error updating s3:`, queryErr, filePath);
+        } else {
+          console.log("results", results);
+          if (results[0].cloudStatus == "500") {
+            callAPI("http://localhost:3000/api/retryUpload", { "id": results[0]?.id });
+          }
+          console.log(`retry successfully for ${fileName}.`);
         }
       }
     );

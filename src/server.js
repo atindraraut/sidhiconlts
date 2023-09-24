@@ -14,10 +14,10 @@ const util = require("util");
 var { promiseQuery } = require("./db");
 const sharp = require("sharp");
 const AWS = require("aws-sdk"),
-      {
+  {
         Upload
       } = require("@aws-sdk/lib-storage"),
-      {
+  {
         S3
       } = require("@aws-sdk/client-s3");
 var bodyParser = require('body-parser');
@@ -293,7 +293,7 @@ router.post("/lp-wm-data", (req, res) => {
   console.log("LP WP data log ", status, lpWmData, socketId);
   req.app.io.to(socketId).emit("lp_wm_data", { status, lpWmData });
   delete lpWmData['base64imag'];
-  
+
   // insert query
   dbPool.query(
     "INSERT INTO parcel_data SET ?",
@@ -315,7 +315,7 @@ router.post("/lp-wm-data", (req, res) => {
 router.post("/lp-wm-data-update", (req, res) => {
   let {  lpWmData, socketId } = req.body;
   console.log("LP WP data update log ",  lpWmData, socketId);
-  
+
   // update query
   dbPool.query(
     "UPDATE  parcel_data SET cloudStatus = ? , cloudApiMsg = ? WHERE imageName = ?",
