@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 const shell = require("shelljs");
 const fs = require("fs");
 const os = require("os");
@@ -14,20 +14,16 @@ const util = require("util");
 var { promiseQuery } = require("./db");
 const sharp = require("sharp");
 const AWS = require("aws-sdk"),
-  {
-        Upload
-      } = require("@aws-sdk/lib-storage"),
-  {
-        S3
-      } = require("@aws-sdk/client-s3");
-var bodyParser = require('body-parser');
+  { Upload } = require("@aws-sdk/lib-storage"),
+  { S3 } = require("@aws-sdk/client-s3");
+var bodyParser = require("body-parser");
 
 const credentials = {
   region: process.env.AWS_REGION,
   credentials: {
     accessKeyId: process.env.ACCESS_KEY_ID,
-    secretAccessKey: process.env.SECRET_ACCESS_KEY
-  }
+    secretAccessKey: process.env.SECRET_ACCESS_KEY,
+  },
 };
 
 const s3 = new S3(credentials);
@@ -55,7 +51,7 @@ async function uploadToS3(filePath) {
   try {
     await new Upload({
       client: s3,
-      params
+      params,
     }).done();
     console.log(`Uploaded ${fileName} to S3 successfully.`);
     return { success: true, fileKey };
@@ -123,7 +119,8 @@ const io = require("socket.io")(http, {
   cors: {
     origin: "*",
   },
-  maxHttpBufferSize: 1e8, pingTimeout: 60000
+  maxHttpBufferSize: 1e8,
+  pingTimeout: 60000,
 });
 
 app.io = io;
@@ -213,9 +210,7 @@ router.post("/getCsv", (req, res) => {
       const json2csvParser = new Json2csvParser({ header: true });
       const csv = json2csvParser.parse(jsonData);
       fs.writeFile(
-        `C:\\Users\\Admin\\Documents\\sidhicon\\${Math.floor(
-          Date.now()
-        )}.csv`,
+        `C:\\Users\\Admin\\Documents\\sidhicon\\${Math.floor(Date.now())}.csv`,
         csv,
         function (error) {
           if (error) throw error;
@@ -251,7 +246,7 @@ router.post("/retryUpload", async (req, res) => {
     };
     let { status, msg } = await callAPI(postURL, sendData);
     if (status == 200) {
-      let updateQuery = `UPDATE parcel_data set cloudStatus = 200 where id = ${rows[0]["id"]};`;
+      let updateQuery = `UPDATE parcel_data set cloudStatus = 200,cloudApiMsg = null where id = ${rows[0]["id"]};`;
       try {
         await promiseQuery(updateQuery);
         return res.send({ msg: "Updated Successfully" });
@@ -292,7 +287,7 @@ router.post("/lp-wm-data", (req, res) => {
   let { status, lpWmData, socketId } = req.body;
   console.log("LP WP data log ", status, lpWmData, socketId);
   req.app.io.to(socketId).emit("lp_wm_data", { status, lpWmData });
-  delete lpWmData['base64imag'];
+  delete lpWmData["base64imag"];
 
   // insert query
   dbPool.query(
@@ -313,17 +308,17 @@ router.post("/lp-wm-data", (req, res) => {
 
 //lp and wp data update socket
 router.post("/lp-wm-data-update", (req, res) => {
-  let {  lpWmData, socketId } = req.body;
-  console.log("LP WP data update log ",  lpWmData, socketId);
+  let { lpWmData, socketId } = req.body;
+  console.log("LP WP data update log ", lpWmData, socketId);
 
   // update query
   dbPool.query(
     "UPDATE  parcel_data SET cloudStatus = ? , cloudApiMsg = ? WHERE imageName = ?",
-    [lpWmData['status'],lpWmData['msg'],lpWmData['imageName']],
+    [lpWmData["status"], lpWmData["msg"], lpWmData["imageName"]],
     function (err, result) {
       //if(err) throw err
       if (err) {
-        console.log("Unable to update cloud data",err);
+        console.log("Unable to update cloud data", err);
       } else {
         console.log("Updated successfully cloud data");
       }
@@ -351,7 +346,7 @@ router.post("/update-systeConfig", (req, res) => {
   return res.send({ msg: "done" });
 });
 
-app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.json({ limit: "50mb" }));
 app.use(express.json());
 
 app.use("/api", router);
