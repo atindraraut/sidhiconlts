@@ -235,7 +235,7 @@ router.post("/retryUpload", async (req, res) => {
     let base64imag = await getBase64Image(rows[0]["images"]);
     let sendData = {
       awb: `${rows[0]["awb"]}`,
-      profiler_name: "MUM-PR01",
+      profiler_name: systemConfig().PROFILER_NAME,
       length: `${rows[0]["length"]}`,
       breadth: `${rows[0]["breadth"]}`,
       height: `${rows[0]["height"]}`,

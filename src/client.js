@@ -160,7 +160,7 @@ client.on("data", async function (listenedData) {
   let postURL = systemConfig().COLUD_ENDPOINT;
   let sendData = {
     awb: `${barcode}`,
-    profiler_name: "BLR-PR01",
+    profiler_name: systemConfig().PROFILER_NAME,
     length: `${length}`,
     breadth: `${width}`,
     height: `${height}`,
