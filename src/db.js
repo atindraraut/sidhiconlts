@@ -5,9 +5,9 @@ const util = require("util");
 // MySQL database configuration
 const dbPool = mysql.createPool({
   connectionLimit: 10, // Adjust based on your server's capacity
-  host: "127.0.0.1",
+  host: "192.168.3.99",
   user: "root",
-  password: "root",
+  password: "",
   database: "sidhicon_sorting",
 });
 

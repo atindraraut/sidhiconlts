@@ -1,10 +1,1 @@
-{
-  "LP_IP": "192.168.0.131",
-  "LP_PORT": 2500,
-  "WM_IP": "192.168.0.120",
-  "WM_PORT": 24,
-  "SOCKET_ID": "JYAm8si4CoZS9DyPAAAB",
-  "COLUD_ENDPOINT": "https://saruman.shadowfax.in/api/rpc/v2/qc/profiler_scan_receive",
-  "TOKEN": "616c9ecdd5be1505999ace31641da1ba3ed5a844",
-  "PROFILER_NAME": "MUM_PRO1"
-}
+{"LP_IP":"192.168.3.10","LP_PORT":1000,"WM_IP":"192.168.250.14","WM_PORT":23,"BAR_IP":"192.168.250.13","BAR_PORT":23,"SOCKET_ID":"JeunUoYR72kqPREjAAAH","COLUD_ENDPOINT":"","TOKEN":"616c9ecdd5be1505999ace31641da1ba3ed5a844","PROFILER_NAME":"MUM_PRO1"}

@@ -93,6 +93,7 @@ const parseDate = (value) => {
 };
 
 async function callAPI(url, data) {
+  // return;
   console.log("call api", url, data);
   try {
     let apiRes = await axios({
@@ -104,7 +105,7 @@ async function callAPI(url, data) {
         Authorization: `Token  ${token}`,
       },
     });
-    console.log("API RES ", apiRes);
+    // console.log("API RES ", apiRes);
     return { status: apiRes?.status, msg: "" };
   } catch (err) {
     // console.log("Error ", err);
@@ -191,6 +192,8 @@ router.get("/close-lp-wm", (req, res, next) => {
   // console.log("output", yourscript);
   return res.send({ msg: "done" });
 });
+
+
 
 //download csv api
 router.post("/getCsv", (req, res) => {
@@ -279,6 +282,13 @@ router.post("/lp-status", (req, res) => {
 router.post("/wm-status", (req, res) => {
   let { status, socketId } = req.body;
   req.app.io.to(socketId).emit("wm_status", { status });
+  return res.send({ msg: "done" });
+});
+
+//update status of  bar
+router.post("/bar-status", (req, res) => {
+  let { status, socketId } = req.body;
+  req.app.io.to(socketId).emit("bar_status", { status });
   return res.send({ msg: "done" });
 });
 

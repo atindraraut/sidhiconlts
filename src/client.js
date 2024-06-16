@@ -33,90 +33,126 @@ const getBase64Image = async (imgPath) => {
 var client = new net.Socket();
 let lp_ip = systemConfig()?.LP_IP ? systemConfig()?.LP_IP : getIPAddress();
 let wm_ip = systemConfig()?.WM_IP ? systemConfig()?.WM_IP : getIPAddress();
+let bar_ip = systemConfig()?.BAR_IP ? systemConfig()?.BAR_IP : getIPAddress();
 let lp_port = systemConfig()?.LP_PORT ? systemConfig()?.LP_PORT : 2301;
 let wm_port = systemConfig()?.WM_PORT ? systemConfig()?.WM_PORT : 24;
+let bar_port = systemConfig()?.BAR_PORT ? systemConfig()?.BAR_PORT : 24;
 let token = systemConfig()?.TOKEN ? systemConfig()?.TOKEN : "";
-let currentConfig = systemConfig();
-currentConfig["LP_IP"] = lp_ip;
-currentConfig["WM_IP"] = wm_ip;
-currentConfig["LP_PORT"] = lp_port;
-currentConfig["WM_PORT"] = wm_port;
-let updatedSystemConfig = JSON.stringify(currentConfig);
-fs.writeFileSync("systemConfig.json", updatedSystemConfig);
+// let currentConfig = systemConfig();
+// currentConfig["LP_IP"] = lp_ip;
+// currentConfig["WM_IP"] = wm_ip;
+// currentConfig["LP_PORT"] = lp_port;
+// currentConfig["WM_PORT"] = wm_port;
+// let updatedSystemConfig = JSON.stringify(currentConfig);
+// fs.writeFileSync("systemConfig.json", updatedSystemConfig);
 
 var weightClient = new net.Socket();
+var barcodeClient = new net.Socket();
 var gotWeigth = 0;
 
 async function callAPI(url, data, isCloud = null) {
-  console.log(url, data);
-  try {
-    let apiRes = await axios({
-      method: "POST",
-      url,
-      data,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token  ${token}`,
-      },
-    });
-    console.log("API RES ", apiRes.status);
-    //update db if success from cloud
-    if (apiRes?.status == 200 && isCloud) {
-      let sendData = { status: apiRes?.status, msg: "",imageName: data.imageName };
-      callAPI("http://localhost:3000/api/lp-wm-data-update", {
-        status: 200,
-        lpWmData: sendData,
-        socketId: systemConfig().SOCKET_ID,
+  // return;
+  if (url) {
+    console.log(url, data);
+    try {
+      let apiRes = await axios({
+        method: "POST",
+        url,
+        data,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token  ${token}`,
+        },
       });
+      // console.log("API RES ", apiRes.status);
+      //update db if success from cloud
+      // if (apiRes?.status == 200) {
+      //   let sendData = { status: apiRes?.status, msg: "", imageName: data.imageName };
+      //   callAPI("http://localhost:3000/api/lp-wm-data-update", {
+      //     status: 200,
+      //     lpWmData: sendData,
+      //     socketId: systemConfig().SOCKET_ID,
+      //   });
+      // }
+      return apiRes?.status;
+    } catch (err) {
+      console.log("Error ", err);
+      // if (isCloud) {
+      //   let sendData = { status: 500, msg: err["response"]["data"]["message"],imageName: data.imageName };
+      //   callAPI("http://localhost:3000/api/lp-wm-data-update", {
+      //     lpWmData: sendData,
+      //     socketId: systemConfig().SOCKET_ID,
+      //   });
+      // }
+      return 500;
     }
-    return apiRes?.status;
-  } catch (err) {
-    console.log("Error ", err);
-    if (isCloud) {
-      let sendData = { status: 500, msg: err["response"]["data"]["message"],imageName: data.imageName };
-      callAPI("http://localhost:3000/api/lp-wm-data-update", {
-        lpWmData: sendData,
-        socketId: systemConfig().SOCKET_ID,
-      });
-    }
-    return 500;
   }
 }
 
 //weighting start
-weightClient.connect(wm_port, wm_ip, function () {
-  console.log("Weight Connected");
-  let wmStatusData = {
+// weightClient.connect(wm_port, wm_ip, function () {
+//   console.log("Weight Connected");
+//   let wmStatusData = {
+//     socketId: systemConfig().SOCKET_ID,
+//     status: 200,
+//   };
+//   console.log("LP status data ", wmStatusData);
+//   callAPI("http://localhost:3000/api/wm-status", wmStatusData);
+// });
+
+// weightClient.on("data", function (weightData) {
+//   console.log("weightData ", weightData.toString(), weightData);
+//   weightData = weightData.toString();
+//   if (weightData.length > 5) {
+//     weightData = weightData
+//       .split(" ")[9]
+//       .slice(0, weightData.split(" ")[9].indexOf("kg"));
+//   }
+//   console.log("New weightData ", weightData);
+//   gotWeigth = weightData;
+// });
+
+// weightClient.on("close", function () {
+//   console.log("WM Connection closed");
+//   let wmStatusData = {
+//     socketId: systemConfig().SOCKET_ID,
+//     status: 500,
+//   };
+//   console.log("LP status data ", wmStatusData);
+//   callAPI("http://localhost:3000/api/wm-status", wmStatusData);
+// });
+
+//weighting End
+
+let barcodeData = "";
+//Barcode start
+barcodeClient.connect(bar_port, bar_ip, function () {
+  console.log("Barcode Connected");
+  let barStatusData = {
     socketId: systemConfig().SOCKET_ID,
     status: 200,
   };
-  console.log("LP status data ", wmStatusData);
-  callAPI("http://localhost:3000/api/wm-status", wmStatusData);
+  console.log("Bar status data ", barStatusData);
+  callAPI("http://localhost:3000/api/bar-status", barStatusData);
 });
 
-weightClient.on("data", function (weightData) {
-  console.log("weightData ", weightData.toString(), weightData);
-  weightData = weightData.toString();
-  if (weightData.length > 5) {
-    weightData = weightData
-      .split(" ")[9]
-      .slice(0, weightData.split(" ")[9].indexOf("kg"));
-  }
-  console.log("New weightData ", weightData);
-  gotWeigth = weightData;
+barcodeClient.on("data", function (weightData) {
+  console.log("barcode Data ", weightData.toString(), weightData);
+  barcodeData = weightData.toString();
+  
 });
 
-weightClient.on("close", function () {
+barcodeClient.on("close", function () {
   console.log("WM Connection closed");
-  let wmStatusData = {
+  let barStatusData = {
     socketId: systemConfig().SOCKET_ID,
     status: 500,
   };
-  console.log("LP status data ", wmStatusData);
-  callAPI("http://localhost:3000/api/wm-status", wmStatusData);
+  console.log("LP status data ", barStatusData);
+  callAPI("http://localhost:3000/api/bar-status", barStatusData);
 });
 
-//weighting End
+//Barcode End
 
 client.connect(lp_port, lp_ip, function () {
   console.log("LP Connected");
@@ -132,7 +168,9 @@ client.connect(lp_port, lp_ip, function () {
 client.on("data", async function (listenedData) {
   console.log("Received: " + listenedData);
   // let listenedData = `RVPST30648207,,348,278,105,10142547,1691206155265`;
-  console.log(typeof listenedData);
+  // 40,366,42,102,0,1568535
+  //Trigger ID, Length, Width, Height, Angle, Volume
+  // console.log(typeof listenedData);
   let [barcode, length, width, height, volume, imgName] = listenedData
     .toString()
     .split(",");
@@ -140,11 +178,12 @@ client.on("data", async function (listenedData) {
   // weight=0;
   //  let liveimgPath = `D:/img/Orignal/${imgName.trim()}.jpg`;
   let imgPath = `D:/Images/Orignal/${barcode.trim()}_${imgName.trim()}.jpg`;
+  // barcode= barcodeData;
   // let imgPath = `D:/Images/Orignal/1691414767027.jpg`;
   // let imgPath = `C:/personal/sidhicon/${imgName.trim()}`;
   getImgCount = 0;
-  const base64imag = await getBase64Image(imgPath);
-    const datee = new Date(Number(imgName.trim()));
+  const base64imag = '';
+  const datee = new Date();
   let timeIs =
     datee.getHours() + ":" + datee.getMinutes() + ":" + datee.getSeconds();
   const yyyy = datee.getFullYear();
@@ -155,7 +194,7 @@ client.on("data", async function (listenedData) {
   if (mm < 10) mm = "0" + mm;
 
   const formattedToday = yyyy + "-" + mm + "-" + dd;
-  // console.log(barcode, weight, length, width, height, volume, imgName, contents);
+  console.log(barcode, weight, length, width, height, volume, imgName);
 
   let postURL = systemConfig().COLUD_ENDPOINT;
   let sendData = {
@@ -166,8 +205,7 @@ client.on("data", async function (listenedData) {
     height: `${height}`,
     dead_weight: `${weight}`,
     scanned_date: `${formattedToday}`,
-    scanned_time: `${timeIs}`,
-    images: `${base64imag}`,
+    scanned_time: `${timeIs}`
   };
   const data = JSON.stringify(sendData);
 

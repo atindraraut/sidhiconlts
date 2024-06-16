@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
-  <title>Sidhicon Automation Solution</title>
+  <title>Delite Automation Solution</title>
   <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 
@@ -84,7 +84,7 @@
           align-items: center;
           margin: 30px;
         ">
-      <img src="/assets/sidhiconicon.jpeg" style="height: 70px" />
+      <img src="/assets/delite-logo.png" style="height: 70px" />
       <span class="settingsicon" id="settingsicon"></span>
     </section>
     <section class="status-bar" style="display: flex; justify-content: center">
@@ -129,6 +129,28 @@
 
           <p class="card-description">
             This indicates the connection status for Weighting Server.
+          </p>
+        </div>
+      </div>
+      <div class="card" style="margin: 5px">
+        <div id="barcode-card" class="container-card bg-white-box"
+          style="background-color: rgb(162, 50, 50);overflow-y: scroll;scrollbar-width: none;">
+          <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              ">
+            <img src="assets/weight-gain-icon.png" style="height: 80px;width: 80px;" />
+            <label class="toggle">
+              <span class="onoff"></span>
+              <input type="checkbox" id="barcode-checkbox" />
+              <span class="slider round"></span>
+            </label>
+          </div>
+          <p class="card-title">Barcode Server</p>
+
+          <p class="card-description">
+            This indicates the connection status for Barcode Server.
           </p>
         </div>
       </div>
@@ -224,6 +246,7 @@
       console.log(socket.id); // undefined
     });
     socket.on("lp_status", (resStatus) => {
+      debugger;
       let statusCode = resStatus.status;
       console.log('lp status ', statusCode); // undefined
       const lpCard = document.getElementById("lp-card");
@@ -247,6 +270,18 @@
       }
       else {
         wmCard.style.backgroundColor = 'red'
+      }
+    });
+    socket.on("bar_status", (resStatus) => {
+      let statusCode = resStatus.status;
+      const barCard = document.getElementById("barcode-card");
+      console.log('wp status ', statusCode); // undefined
+      if (statusCode == 200) {
+        barCard.style.backgroundColor = 'green';
+        document.getElementById("barcode-checkbox").checked = true;
+      }
+      else {
+        barCard.style.backgroundColor = 'red'
       }
     });
     async function encode(array) {
